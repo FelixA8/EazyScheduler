@@ -1,12 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootBottomNavBarStackParamList, Task } from "../constants/types";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Colors } from "../constants/colors";
 import CalendarSlider from "../components/stats/CalendarSlider";
 import CurrentStats from "../components/stats/CurrentStats";
 import { useContext, useEffect } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { SummaryContext } from "../store/summary-store";
+import { fetchTasksInaWeek } from "../util/database";
 
 type StatsScreenProps = NativeStackScreenProps<
   RootBottomNavBarStackParamList,
@@ -33,13 +34,19 @@ const sevenDays = getDatesOfPreviousWeek();
 
 const StatsScreen: React.FC<StatsScreenProps> = () => {
   const sumamryCtx = useContext(SummaryContext);
-  const isFocused = useIsFocused()
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    async function getTask() {
+      await fetchTasksInaWeek();
+    }
+    getTask();
+  }, [isFocused]);
 
   return (
-    <View style={styles.root}>
+    <ScrollView style={styles.root}>
       <CalendarSlider />
       <CurrentStats />
-    </View>
+    </ScrollView>
   );
 };
 

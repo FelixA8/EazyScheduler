@@ -9,6 +9,7 @@ interface TaskListProps {
 const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
   return (
     <FlatList
+    style={{paddingHorizontal: 12}}
     scrollEnabled={false}
       data={tasks}
       renderItem={(itemData) => <TaskCard task={itemData.item} />}

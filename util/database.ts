@@ -2,7 +2,7 @@ import * as SQLITE from "expo-sqlite";
 import { useEffect } from "react";
 import { Task } from "../constants/types";
 
-let db: any;
+let db: SQLITE.SQLiteDatabase;
 
 function formatDate(dateObj: Date): string {
   const year = dateObj.getFullYear();
@@ -12,7 +12,7 @@ function formatDate(dateObj: Date): string {
   const minutes = String(dateObj.getMinutes()).padStart(2, "0");
   const seconds = String(dateObj.getSeconds()).padStart(2, "0");
 
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return `${year}-${month}-${day} 00:00:00`;
 }
 
 export async function init() {
@@ -56,28 +56,25 @@ export async function insertTask(task: Task) {
 }
 
 export async function fetchTasksInaWeek() {
-  const tasks = [];
+  var value: any;
   try {
     const allRows = await db.getAllAsync(
-      "SELECT * FROM tasks ORDER BY date, time"
+      "SELECT SUM(isDone) AS totalIsDone,  SUM(important) AS totalImportant, SUM(urgent) AS totalUrgent FROM tasks WHERE date >= DATE('now', '-7 days')"
     );
-
-    for (const row of allRows) {
-      tasks.push(row);
-    }
+    value = allRows[0];
   } catch (e) {
     console.log(`${e}`);
     console.log("this");
   }
 
-  return tasks;
+  return value;
 }
 
 export async function fetchTasksInaDay(day: Date) {
   const tasks = [];
+  const db = await SQLITE.openDatabaseAsync("tasks.db");
   try {
     const formattedDate = formatDate(day);
-    console.log(formattedDate);
     const allRows = await db.getAllAsync(
       "SELECT * FROM tasks WHERE date=? ORDER BY date, time",
       formattedDate
@@ -94,9 +91,7 @@ export async function fetchTasksInaDay(day: Date) {
 }
 
 export async function updateTask(task: Task) {
-  const date = `${task.date.getFullYear()}-${
-    task.date.getMonth() + 1
-  }-${task.date.getDate()}`;
+  const date = formatDate(task.date);
   const time = `${task.time.toLocaleTimeString()}`;
   const response = await db.getAllAsync(
     `UPDATE tasks SET date=?, tasktitle=?, taskdescription=?, time=?, important=?, urgent=?, isDone=?, theme=? WHERE id = ?`,
@@ -114,7 +109,7 @@ export async function updateTask(task: Task) {
   return response;
 }
 
-export async function deleteTask(id: number) {
+export async function deleteTask(id: string) {
   const response = await db.getAllAsync(`DELETE FROM tasks WHERE id = ?`, id);
 
   return response;

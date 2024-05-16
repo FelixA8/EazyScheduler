@@ -5,16 +5,17 @@ import { SummaryContext } from "../../store/summary-store";
 
 const CurrentStats = () => {
   const summaryCtx = useContext(SummaryContext)
+  
   return (
     <View style={styles.root}>
       <Text style={styles.textTitle}>Last 7 days</Text>
       <View style={styles.row}>
         <View style={[styles.container, { flex: 1 }]}>
-          <Text style={styles.textBold}>{summaryCtx.totalTasksFinished}</Text>
+          <Text style={styles.textBold}>{summaryCtx.totalTasksCompleted}</Text>
           <Text style={styles.textSubTitle}>Total Tasks Completed</Text>
         </View>
         <View style={[styles.container, { flex: 1 }]}>
-          <Text style={styles.textBold}>{summaryCtx.totalTasksincompleted}</Text>
+          <Text style={styles.textBold}>{summaryCtx.totalTasksUnfinished}</Text>
           <Text style={styles.textSubTitle}>Total Tasks Unfinished</Text>
         </View>
       </View>

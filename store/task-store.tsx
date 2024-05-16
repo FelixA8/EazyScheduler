@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useState } from "react";
 import { Task } from "../constants/types";
+import { deleteTask } from "../util/database";
 
 interface MyComponentProps {
   children: ReactNode;
@@ -13,8 +14,9 @@ interface TaskContextType {
   totalTaskUnfinished: number;
   setTotalTasksCompletedInaDay: (total: number) => void;
   setTotalTasksUnfinishedInaDay: (total: number) => void;
-  setCompletedTaskInaDay: (task: Task, action: string) => void;
-  setUnfinishedTaskInaDay: (task: Task, action: string) => void;
+  setCompletedTaskInaDay: (tasks: Task[]) => void;
+  setUnfinishedTaskInaDay: (tasks: Task[]) => void;
+  deleteTask:(id:string, isDone:boolean) => void
   refreshTasks: () => void;
 }
 
@@ -25,8 +27,9 @@ export const TaskContext = createContext<TaskContextType>({
   totalTaskUnfinished: 0,
   setTotalTasksCompletedInaDay: (total: number) => {},
   setTotalTasksUnfinishedInaDay: (total: number) => {},
-  setCompletedTaskInaDay: (task: Task, action: string) => {},
-  setUnfinishedTaskInaDay: (task: Task, action: string) => {},
+  setCompletedTaskInaDay: (tasks: Task[]) => {},
+  setUnfinishedTaskInaDay: (tasks: Task[]) => {},
+  deleteTask: (id:string, isDone:boolean)=>{},
   refreshTasks: () => {},
 });
 
@@ -44,24 +47,12 @@ const TaskContextProvider: React.FC<MyComponentProps> = ({ children }) => {
     setTotalTaskUnfinished(total);
   }
 
-  function setCompletedTaskInaDay(task: Task, action: string) {
-    if (action === "add") {
-      setCompletedTasks((prevTask) => [...prevTask, task]);
-    } else if (action === "remove") {
-      setCompletedTasks((prevTask) =>
-        prevTask.filter((taskA) => taskA.id !== task.id)
-      );
-    }
+  function setCompletedTaskInaDay(tasks: Task[]) {
+    setCompletedTasks(tasks)
   }
 
-  function setUnfinishedTaskInaDay(task: Task, action: string) {
-    if (action === "add") {
-      setUnfinishedTasks((prevTask) => [...prevTask, task]);
-    } else if (action === "remove") {
-      setUnfinishedTasks((prevTask) =>
-        prevTask.filter((taskA) => taskA.id !== task.id)
-      );
-    }
+  function setUnfinishedTaskInaDay(tasks: Task[]) {
+    setUnfinishedTasks(tasks);
   }
 
   function refreshTasks() {
@@ -69,6 +60,15 @@ const TaskContextProvider: React.FC<MyComponentProps> = ({ children }) => {
     setCompletedTasks([]);
     setTotalTaskCompleted(0);
     setTotalTaskUnfinished(0);
+  }
+
+  function deleteTask(id:string, isDone:boolean) {
+    
+    if(isDone) {
+      setCompletedTasks((prevTask) => prevTask.filter((task)=>task.id !== id))
+    } else {
+      setUnfinishedTasks((prevTask) => prevTask.filter((task)=>task.id !== id))
+    }
   }
 
   const value = {
@@ -81,6 +81,7 @@ const TaskContextProvider: React.FC<MyComponentProps> = ({ children }) => {
     setCompletedTaskInaDay: setCompletedTaskInaDay,
     setUnfinishedTaskInaDay: setUnfinishedTaskInaDay,
     refreshTasks: refreshTasks,
+    deleteTask: deleteTask,
   };
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };

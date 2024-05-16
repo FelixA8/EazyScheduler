@@ -10,7 +10,7 @@ import {
 import { StyleSheet, View } from "react-native";
 import { Colors } from "../constants/colors";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DateContext } from "../store/date-store";
 import { TaskContext } from "../store/task-store";
 import { fetchTasksInaDay } from "../util/database";
@@ -32,18 +32,40 @@ const HomeScreen: React.FC<HomeScreenProps> = (props) => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isFocused = useIsFocused();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     async function getTask() {
-      taskCtx.refreshTasks();
+      setIsLoading(true);
       const response: any = await fetchTasksInaDay(dateCtx.selectedDate);
-      console.log(response);
+      const tasks: Task[] = [];
+      var countTask = 0;
+      var countUnfinish = 0;
       for (var i = 0; i < response.length; i++) {
-        if (response[i].isDone === false) {
-          taskCtx.setCompletedTaskInaDay(response[i], "add");
-        } else {
-          taskCtx.setUnfinishedTaskInaDay(response[i], "add");
+        tasks.push({
+          id: response[i].id,
+          date: response[i].date,
+          important: response[i].important === "0" ? false : true,
+          isDone: response[i].isDone === "0" ? false : true,
+          taskDescription: response[i].taskdescription,
+          taskTitle: response[i].tasktitle,
+          theme: response[i].theme,
+          time: response[i].time,
+          urgent: response[i].urgent === "0" ? false : true,
+        });
+        if (response[i].isDone === "0") {
+          countTask++;
+        } else if (response[i].isDone === "1") {
+          countUnfinish++;
         }
       }
+      taskCtx.setCompletedTaskInaDay(
+        tasks.filter((task) => task.isDone === true)
+      );
+      taskCtx.setUnfinishedTaskInaDay(
+        tasks.filter((task) => task.isDone === false)
+      );
+      setIsLoading(false);
     }
     getTask();
   }, [isFocused, dateCtx.selectedDate]);
