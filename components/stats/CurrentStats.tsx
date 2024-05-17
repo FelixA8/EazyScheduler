@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { SummaryContext } from "../../store/summary-store";
 
 const CurrentStats = () => {
-  const summaryCtx = useContext(SummaryContext)
+  const summaryCtx = useContext(SummaryContext);
   
   return (
     <View style={styles.root}>
@@ -32,6 +32,7 @@ export default CurrentStats;
 const styles = StyleSheet.create({
   root: {
     paddingHorizontal: 12,
+    marginVertical: 12,
   },
   textTitle: {
     color: "#B6BDC8",

@@ -55,11 +55,11 @@ export async function insertTask(task: Task) {
   return promise;
 }
 
-export async function fetchTasksInaWeek() {
+export async function fetchResultData() {
   var value: any;
   try {
     const allRows = await db.getAllAsync(
-      "SELECT SUM(isDone) AS totalIsDone,  SUM(important) AS totalImportant, SUM(urgent) AS totalUrgent FROM tasks WHERE date >= DATE('now', '-7 days')"
+      "SELECT SUM(isDone) AS totalIsDone,  SUM(important) AS totalImportant, SUM(urgent) AS totalUrgent, COUNT(*) AS totalTask FROM tasks WHERE date >= DATE('now', '-7 days')"
     );
     value = allRows[0];
   } catch (e) {

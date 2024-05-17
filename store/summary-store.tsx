@@ -10,9 +10,7 @@ export const SummaryContext = createContext({
   productivityRate: 0,
   countProductivityRate: (
     important: number,
-    notImportant: number,
     urgent: number,
-    notUrgent: number
   ) => {},
   countTotalTaskCompleted: (total: number) => {},
   countTotalUnfinishedTask: (total: number) => {},
@@ -23,13 +21,8 @@ const SummaryContextProvider: React.FC<MyComponentProps> = ({ children }) => {
   const [totalTasksUnfinished, setTotalTasksUnfnished] = useState(0);
   const [productivityRate, setProductivityRate] = useState(0);
 
-  function countProductivityRate(
-    important: number,
-    notImportant: number,
-    urgent: number,
-    notUrgent: number
-  ) {
-    const point = important * 1.5 + notImportant + urgent * 1.5 + notUrgent / 7;
+  function countProductivityRate(important: number, urgent: number) {
+    const point = (important*0.5 + urgent*0.25) / 7;
     setProductivityRate(point);
   }
 

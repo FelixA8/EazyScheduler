@@ -7,7 +7,7 @@ import CurrentStats from "../components/stats/CurrentStats";
 import { useContext, useEffect } from "react";
 import { useIsFocused } from "@react-navigation/native";
 import { SummaryContext } from "../store/summary-store";
-import { fetchTasksInaWeek } from "../util/database";
+import { fetchResultData } from "../util/database";
 
 type StatsScreenProps = NativeStackScreenProps<
   RootBottomNavBarStackParamList,
@@ -37,7 +37,15 @@ const StatsScreen: React.FC<StatsScreenProps> = () => {
   const isFocused = useIsFocused();
   useEffect(() => {
     async function getTask() {
-      await fetchTasksInaWeek();
+      const response = await fetchResultData();
+      sumamryCtx.countTotalTaskCompleted(response.totalIsDone);
+      sumamryCtx.countTotalUnfinishedTask(
+        response.totalTask - response.totalIsDone
+      );
+      sumamryCtx.countProductivityRate(
+        response.totalImportant,
+        response.totalUrgent
+      );
     }
     getTask();
   }, [isFocused]);
